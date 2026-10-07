@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusaApp - Professional Writers Studio</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            50: '#fdfbf7',
+                            100: '#f7f1e3',
+                            200: '#ede0c4',
+                            300: '#e3cca5',
+                            400: '#d4b27b',
+                            500: '#c59b52',
+                            600: '#b0823b',
+                            700: '#8c652e',
+                            800: '#6d4e24',
+                            900: '#543b1c',
+                            950: '#322310',
+                        },
+                        darkbase: {
+                            900: '#0d0d0d',
+                            800: '#161616',
+                            700: '#202020',
+                            600: '#2a2a2a',
+                            500: '#3a3a3a'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0d0d;
+            color: #f7f1e3;
+        }
+        
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Custom scrollbar for aesthetic dark/gold vibe */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #161616;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #6d4e24;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c59b52;
+        }
+
+        /* Glow effects */
+        .gold-glow {
+            box-shadow: 0 0 25px rgba(197, 155, 82, 0.15);
+        }
+        .gold-border {
+            border-color: rgba(197, 155, 82, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-darkbase-900 text-gold-100 min-h-screen flex flex-col antialiased selection:bg-gold-500 selection:text-darkbase-900">
+
+    <script>
+        // Inline dynamic Service Worker registration for PWA readiness
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'musaapp-v1';
+                    const ASSETS = ['./', './index.html'];
+                    self.addEventListener('install', e => {
+                        e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
+                    });
+                    self.addEventListener('fetch', e => {
+                        e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'text/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration failed: ', err));
+            });
+        }
+    </script>
+
+    <header class="bg-darkbase-800 border-b gold-border sticky top-0 z-40 px-4 lg:px-8 py-3 flex items-center justify-between shadow-lg">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-500 to-gold-700 flex items-center justify-center text-darkbase-900 font-serif font-bold text-xl shadow-md gold-glow">
+                M
+            </div>
+            <div>
+                <h1 class="font-serif text-xl font-bold tracking-wide text-gold-300">Musa<span class="text-gold-500">App</span></h1>
+                <p class="text-xs text-gold-400/70 hidden sm:block">Professional Writers Studio</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="hidden md:flex space-x-1 bg-darkbase-900 p-1 rounded-xl border gold-border">
+            <button onclick="switchTab('novels')" id="nav-novels" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 bg-gold-600 text-darkbase-900 shadow">
+                <i class="fa-solid fa-book-open"></i>
+                <span>Proyectos</span>
+            </button>
+            <button onclick="switchTab('writer')" id="nav-writer" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 text-gold-300 hover:text-gold-100 hover:bg-darkbase-700">
+                <i class="fa-solid fa-feather-pointed"></i>
+                <span>Estudio Focus</span>
+            </button>
+            <button onclick="switchTab('calendar')" id="nav-calendar" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 text-gold-300 hover:text-gold-100 hover:bg-darkbase-700">
+                <i class="fa-solid fa-calendar-days"></i>
+                <span>Calendario</span>
+            </button>
+            <button onclick="switchTab('lore')" id="nav-lore" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 text-gold-300 hover:text-gold-100 hover:bg-darkbase-700">
+                <i class="fa-solid fa-scroll"></i>
+                <span>Lore y Notas</span>
+            </button>
+        </nav>
+
+        <!-- Header Actions -->
+        <div class="flex items-center space-x-3">
+            <button onclick="openExportModal()" title="Exportar Respaldo" class="p-2 rounded-lg bg-darkbase-700 text-gold-300 hover:bg-darkbase-600 hover:text-gold-100 border gold-border transition text-sm">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                <span class="hidden lg:inline ml-2">Datos</span>
+            </button>
+            <button onclick="switchTab('writer')" class="px-3 py-2 rounded-lg bg-gradient-to-r from-gold-600 to-gold-500 text-darkbase-900 font-semibold text-sm hover:from-gold-500 hover:to-gold-400 transition shadow-md">
+                <i class="fa-solid fa-pen-nib mr-1"></i> Escribir
+            </button>
+        </div>
+    </header>
+
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-darkbase-800 border-t gold-border z-40 flex justify-around p-2">
+        <button onclick="switchTab('novels')" id="mob-nav-novels" class="flex flex-col items-center py-1 px-3 text-gold-500 text-xs">
+            <i class="fa-solid fa-book-open text-lg mb-1"></i>
+            <span>Proyectos</span>
+        </button>
+        <button onclick="switchTab('writer')" id="mob-nav-writer" class="flex flex-col items-center py-1 px-3 text-gold-300/70 hover:text-gold-300 text-xs">
+            <i class="fa-solid fa-feather-pointed text-lg mb-1"></i>
+            <span>Escritorio</span>
+        </button>
+        <button onclick="switchTab('calendar')" id="mob-nav-calendar" class="flex flex-col items-center py-1 px-3 text-gold-300/70 hover:text-gold-300 text-xs">
+            <i class="fa-solid fa-calendar-days text-lg mb-1"></i>
+            <span>Agenda</span>
+        </button>
+        <button onclick="switchTab('lore')" id="mob-nav-lore" class="flex flex-col items-center py-1 px-3 text-gold-300/70 hover:text-gold-300 text-xs">
+            <i class="fa-solid fa-scroll text-lg mb-1"></i>
+            <span>Lore</span>
+        </button>
+    </div>
+
+    <main class="flex-1 pb-24 md:pb-8 p-4 lg:p-8 max-w-7xl mx-auto w-full">
+
+        <!-- ================= SECTION 1: NOVELS & PROJECTS MANAGER ================= -->
+        <section id="tab-novels" class="space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-darkbase-800 p-6 rounded-2xl border gold-border shadow-xl">
+                <div>
+                    <h2 class="font-serif text-2xl font-bold text-gold-200">Novelas y Proyectos</h2>
+                    <p class="text-sm text-gold-400/80 mt-1">Administra tus obras, lleva control de capítulos y estado de publicación.</p>
+                </div>
+                <button onclick="openNovelModal()" class="px-4 py-2.5 rounded-xl bg-gold-600 hover:bg-gold-500 text-darkbase-900 font-bold transition flex items-center justify-center space-x-2 shadow-md">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Nueva Novela</span>
+                </button>
+            </div>
+
+            <!-- Novels Grid -->
+            <div id="novels-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </section>
+
+        <!-- ================= SECTION 2: FOCUS WRITING MODE ================= -->
+        <section id="tab-writer" class="hidden space-y-4">
+            <!-- Writer Toolbar / Controls -->
+            <div class="bg-darkbase-800 p-4 rounded-2xl border gold-border flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <select id="writer-novel-select" onchange="onWriterNovelChange()" class="bg-darkbase-900 border gold-border text-gold-200 text-sm rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold-500">
+                        <option value="">Seleccionar Novela...</option>
+                    </select>
+                    <select id="writer-chapter-select" onchange="onWriterChapterChange()" class="bg-darkbase-900 border gold-border text-gold-200 text-sm rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold-500">
+                        <option value="">Capítulo...</option>
+                    </select>
+                    <button onclick="addNewChapterFromWriter()" title="Añadir Capítulo" class="p-2 bg-darkbase-700 hover:bg-darkbase-600 text-gold-300 rounded-xl border gold-border transition text-sm">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+
+                <!-- Live Metrics Pills -->
+                <div class="flex items-center space-x-4 text-xs sm:text-sm bg-darkbase-900 px-4 py-2 rounded-xl border gold-border">
+                    <div><span class="text-gold-500 font-bold" id="stat-words">0</span> <span class="text-gold-300/70">Palabras</span></div>
+                    <div class="w-px h-4 bg-gold-500/30"></div>
+                    <div><span class="text-gold-500 font-bold" id="stat-chars">0</span> <span class="text-gold-300/70">Caracteres</span></div>
+                    <div class="w-px h-4 bg-gold-500/30"></div>
+                    <div><span class="text-gold-500 font-bold" id="stat-time">0 min</span> <span class="text-gold-300/70">Lectura</span></div>
+                </div>
+
+                <!-- Fullscreen & Theme Toggles -->
+                <div class="flex items-center space-x-2">
+                    <button onclick="toggleTypewriterFont()" id="btn-font-toggle" title="Cambiar Tipografía" class="p-2 rounded-xl bg-darkbase-700 hover:bg-darkbase-600 text-gold-300 border gold-border transition">
+                        <i class="fa-solid fa-font"></i>
+                    </button>
+                    <button onclick="toggleZenMode()" id="btn-zen" title="Modo Zen (Pantalla Completa)" class="p-2 rounded-xl bg-darkbase-700 hover:bg-darkbase-600 text-gold-300 border gold-border transition">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Distraction-Free Writing Canvas -->
+            <div id="writer-container" class="bg-darkbase-800 rounded-2xl border gold-border shadow-2xl transition-all duration-300 p-6 lg:p-12 min-h-[65vh] flex flex-col relative">
+                <input type="text" id="chapter-title-input" oninput="saveCurrentChapterContent()" placeholder="Título del Capítulo..." class="font-serif text-2xl lg:text-3xl font-bold bg-transparent text-gold-100 placeholder-gold-500/30 border-b border-transparent focus:border-gold-500/50 pb-2 mb-6 focus:outline-none transition">
+                
+                <textarea id="chapter-body-textarea" oninput="saveCurrentChapterContent()" placeholder="Comienza a escribir tu obra maestra aquí..." class="flex-1 w-full bg-transparent text-gold-200/95 placeholder-gold-500/30 resize-none focus:outline-none font-serif text-lg leading-relaxed min-h-[50vh]"></textarea>
+                
+                <div class="mt-4 pt-4 border-t border-gold-500/10 flex justify-between items-center text-xs text-gold-400/60">
+                    <span id="save-status"><i class="fa-solid fa-circle-check text-gold-500 mr-1"></i> Guardado automático activo</span>
+                    <span id="session-words-added">+0 palabras en esta sesión</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 3: PUBLISHING CALENDAR ================= -->
+        <section id="tab-calendar" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-darkbase-800 p-6 rounded-2xl border gold-border shadow-xl">
+                <div>
+                    <h2 class="font-serif text-2xl font-bold text-gold-200">Calendario de Publicación</h2>
+                    <p class="text-sm text-gold-400/80 mt-1">Programa tus lanzamientos de capítulos y metas de entrega.</p>
+                </div>
+                <button onclick="openEventModal()" class="px-4 py-2.5 rounded-xl bg-gold-600 hover:bg-gold-500 text-darkbase-900 font-bold transition flex items-center justify-center space-x-2 shadow-md">
+                    <i class="fa-solid fa-calendar-plus"></i>
+                    <span>Programar Lanzamiento</span>
+                </button>
+            </div>
+
+            <!-- Calendar Event List -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-4" id="calendar-events-list">
+                    <!-- Populated dynamically -->
+                </div>
+                <div class="bg-darkbase-800 p-6 rounded-2xl border gold-border h-fit space-y-4">
+                    <h3 class="font-serif text-lg font-bold text-gold-300 flex items-center">
+                        <i class="fa-solid fa-bullseye text-gold-500 mr-2"></i> Próximos Hitos
+                    </h3>
+                    <p class="text-sm text-gold-400/70">Mantén constancia en tus publicaciones para fidelizar a tus lectores en plataformas o editoriales.</p>
+                    <div id="calendar-summary-stats" class="space-y-3 pt-2">
+                        <!-- Summary stats -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 4: NOTES & LORE NOTEBOOK ================= -->
+        <section id="tab-lore" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-darkbase-800 p-6 rounded-2xl border gold-border shadow-xl">
+                <div>
+                    <h2 class="font-serif text-2xl font-bold text-gold-200">Notas y Lore Notebook</h2>
+                    <p class="text-sm text-gold-400/80 mt-1">Organiza el worldbuilding, personajes, facciones e ideas sueltas.</p>
+                </div>
+                <button onclick="openLoreModal()" class="px-4 py-2.5 rounded-xl bg-gold-600 hover:bg-gold-500 text-darkbase-900 font-bold transition flex items-center justify-center space-x-2 shadow-md">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <span>Nueva Nota de Lore</span>
+                </button>
+            </div>
+
+            <!-- Filter tabs for Lore categories -->
+            <div class="flex flex-wrap gap-2" id="lore-filter-tabs">
+                <button onclick="filterLore('all')" class="px-4 py-2 rounded-xl text-xs font-bold bg-gold-600 text-darkbase-900 transition" data-cat="all">Todas</button>
+                <button onclick="filterLore('Personajes')" class="px-4 py-2 rounded-xl text-xs font-bold bg-darkbase-800 text-gold-300 border gold-border hover:bg-darkbase-700 transition" data-cat="Personajes">Personajes</button>
+                <button onclick="filterLore('Worldbuilding')" class="px-4 py-2 rounded-xl text-xs font-bold bg-darkbase-800 text-gold-300 border gold-border hover:bg-darkbase-700 transition" data-cat="Worldbuilding">Worldbuilding</button>
+                <button onclick="filterLore('Trama')" class="px-4 py-2 rounded-xl text-xs font-bold bg-darkbase-800 text-gold-300 border gold-border hover:bg-darkbase-700 transition" data-cat="Trama">Trama / Plot</button>
+                <button onclick="filterLore('Ideas')" class="px-4 py-2 rounded-xl text-xs font-bold bg-darkbase-800 text-gold-300 border gold-border hover:bg-darkbase-700 transition" data-cat="Ideas">Ideas Sueltas</button>
+            </div>
+
+            <!-- Lore Cards Grid -->
+            <div id="lore-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Populated dynamically -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Modal: New/Edit Novel -->
+    <div id="novel-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-darkbase-800 border gold-border rounded-2xl w-full max-w-md p-6 space-y-6 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 id="novel-modal-title" class="font-serif text-xl font-bold text-gold-200">Nueva Novela</h3>
+                <button onclick="closeNovelModal()" class="text-gold-400 hover:text-gold-200 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="novel-form" onsubmit="handleNovelSubmit(event)" class="space-y-4">
+                <input type="hidden" id="novel-id">
+                <div>
+                    <label class="block text-xs font-bold text-gold-400 uppercase mb-1">Título de la Obra</label>
+                    <input type="text" id="novel-title" required placeholder="Ej. Crónicas de Ébano" class="w-full bg-darkbase-900 border gold-border rounded-xl px-4 py-2.5 text-gold-100 placeholder-gold-500/30 focus:outline-none focus:ring-2 focus:ring-gold-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gold-400 uppercase mb-1">Género / Categoría</label>
+                    <input type="text" id="novel-genre" placeholder="Ej. Fantasía Épica / Sci-Fi" class="w-full bg-darkbase-900 border gold-border rounded-xl px-4 py-2.5 text-gold-100 placeholder-gold-500/30 focus:outline-none focus:ring-2 focus:ring-gold-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gold-400 uppercase mb-1">Estado</label>
+                    <select id="novel-status" class="w-full bg-darkbase-900 border gold-border rounded-xl px-4 py-2.5 text-gold-100 focus:outline-none focus:ring-2 focus:ring-gold-500 text-sm">
+                        <option value="Borrador">Borrador</option>
+                        <option value="En Escritura">En Escritura</option>
+                        <option value="En Revisión">En Revisión</option>
